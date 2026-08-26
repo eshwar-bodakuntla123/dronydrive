@@ -1,6 +1,8 @@
 services:
   api:
-    build: .
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
     container_name: dronydrive-api
     restart: unless-stopped
     env_file:

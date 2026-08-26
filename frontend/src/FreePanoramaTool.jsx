@@ -33,8 +33,7 @@ function FreeViewer({ file, onClose }) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
-    const geometry = new THREE.SphereGeometry(50, 96, 64);
-    geometry.scale(-1, 1, 1);
+    const geometry = new THREE.SphereGeometry(50, 128, 80);
     const loader = new THREE.TextureLoader();
     const texture = loader.load(
       file.url,
@@ -42,8 +41,9 @@ function FreeViewer({ file, onClose }) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.generateMipmaps = true;
-        const material = new THREE.MeshBasicMaterial({ map: tex });
+        const material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
         const sphere = new THREE.Mesh(geometry, material);
+        sphere.rotation.y = Math.PI;
         scene.add(sphere);
         stateRef.current = { scene, camera, renderer, geometry, sphere, material, texture };
         setLoading(false);

@@ -146,7 +146,7 @@ export default function HeroPanorama({ onWorkspace, onExplore }) {
   const current = stages[stage];
 
   return (
-    <section ref={sectionRef} className="panoramaStory">
+    <section ref={sectionRef} className="panoramaStory panoramaStoryCompact">
       <div className="panoramaStorySticky">
         <div
           ref={stageRef}
