@@ -1,218 +1,207 @@
 import React, { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
 
 const HERO_IMAGE = "/assets/dronydrive-hero-360.jpg";
 
-const stages = [
-  {
-    eyebrow: "DRONYDRIVE / VISUAL DATA CLOUD",
-    title: <>See the site.<br /><em>Understand the data.</em></>,
-    body: "A visual workspace for drone surveys, orthomosaics, panoramas and the files behind every flight.",
-    kicker: "01 / CAPTURE",
-  },
-  {
-    eyebrow: "ONE PLACE FOR THE WHOLE FLIGHT",
-    title: <>One capture.<br /><em>Multiple ways to explore.</em></>,
-    body: "Move from the aerial view to the dataset itself without losing the context of the site.",
-    kicker: "02 / CONTEXT",
-  },
-  {
-    eyebrow: "FROM RAW FILES TO CLIENT REVIEW",
-    title: <>Your data,<br /><em>with a point of view.</em></>,
-    body: "Review orthomosaics, open 360° scenes and keep every project asset connected to the place it came from.",
-    kicker: "03 / REVIEW",
-  },
-  {
-    eyebrow: "DRONYDRIVE WORKSPACE",
-    title: <>Capture less chaos.<br /><em>Deliver more clarity.</em></>,
-    body: "A cleaner path from flight folder to a client-ready project experience.",
-    kicker: "04 / DELIVER",
-  },
-];
-
 export default function HeroPanorama({ onWorkspace, onExplore }) {
-  const sectionRef = useRef(null);
-  const stageRef = useRef(null);
-  const pointerRef = useRef(null);
-  const frameRef = useRef(0);
-  const motionRef = useRef({
-    scroll: 0,
-    cursorX: 0,
-    cursorY: 0,
-    targetX: 0,
-    targetY: 0,
-    panX: 0,
-    panY: 0,
-    scale: 1.08,
-    targetScale: 1.08,
-  });
+  const mountRef = useRef(null);
+  const sceneRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState(false);
-  const [stage, setStage] = useState(0);
+  const [hint, setHint] = useState("Move to explore");
 
   useEffect(() => {
-    const img = new Image();
-    img.onload = () => setReady(true);
-    img.onerror = () => setReady(false);
-    img.src = HERO_IMAGE;
+    const mount = mountRef.current;
+    if (!mount) return;
 
-    const onScroll = () => {
-      const el = sectionRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const distance = Math.max(1, el.offsetHeight - window.innerHeight);
-      const progress = Math.max(0, Math.min(1, -rect.top / distance));
-      motionRef.current.scroll = progress;
-      setStage(Math.min(stages.length - 1, Math.floor(progress * stages.length)));
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080b0e);
+
+    const camera = new THREE.PerspectiveCamera(92, 1, 0.1, 100);
+    camera.position.set(0, 0, 0.01);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setClearColor(0x080b0e, 1);
+    mount.appendChild(renderer.domElement);
+
+    const geometry = new THREE.SphereGeometry(50, 96, 64);
+    // Render the inside of the sphere. Rotating the sphere moves the equirectangular seam
+    // behind the viewer so the homepage never opens on the visible seam.
+    const material = new THREE.MeshBasicMaterial({ side: THREE.BackSide });
+    const sphere = new THREE.Mesh(geometry, material);
+    sphere.rotation.y = Math.PI;
+    scene.add(sphere);
+
+    const state = {
+      yaw: 0,
+      pitch: 0,
+      targetYaw: 0,
+      targetPitch: 0,
+      pointerX: 0,
+      pointerY: 0,
+      dragging: false,
+      downX: 0,
+      downY: 0,
+      startYaw: 0,
+      startPitch: 0,
+      lastInput: performance.now(),
     };
 
-    const onResize = () => onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    onScroll();
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      HERO_IMAGE,
+      (texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        material.map = texture;
+        material.needsUpdate = true;
+        setReady(true);
+      },
+      undefined,
+      () => setReady(false)
+    );
 
-    const tick = () => {
-      const m = motionRef.current;
-      const p = m.scroll;
-      const autoPan = (p - 0.5) * -210;
-      const cursorPan = m.targetX;
-      const cursorY = m.targetY;
-      const desiredX = autoPan + cursorPan;
-      const desiredY = cursorY + Math.sin(p * Math.PI * 2) * -7;
-      const desiredScale = 1.08 + p * 0.13;
+    const resize = () => {
+      const w = mount.clientWidth || window.innerWidth;
+      const h = mount.clientHeight || window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    };
+    resize();
+    window.addEventListener("resize", resize);
 
-      m.panX += (desiredX - m.panX) * 0.065;
-      m.panY += (desiredY - m.panY) * 0.065;
-      m.scale += (desiredScale - m.scale) * 0.055;
+    const onPointerDown = (e) => {
+      state.dragging = true;
+      state.downX = e.clientX;
+      state.downY = e.clientY;
+      state.startYaw = state.targetYaw;
+      state.startPitch = state.targetPitch;
+      state.lastInput = performance.now();
+      mount.setPointerCapture?.(e.pointerId);
+      setDragging(true);
+      setHint("Drag to explore");
+    };
 
-      if (stageRef.current) {
-        stageRef.current.style.setProperty("--pan-x", `${m.panX}px`);
-        stageRef.current.style.setProperty("--pan-y", `${m.panY}px`);
-        stageRef.current.style.setProperty("--hero-scale", m.scale.toFixed(4));
-        stageRef.current.style.setProperty("--cursor-x", `${m.cursorX}%`);
-        stageRef.current.style.setProperty("--cursor-y", `${m.cursorY}%`);
+    const onPointerMove = (e) => {
+      const rect = mount.getBoundingClientRect();
+      const nx = (e.clientX - rect.left) / rect.width - 0.5;
+      const ny = (e.clientY - rect.top) / rect.height - 0.5;
+      state.lastInput = performance.now();
+
+      if (state.dragging) {
+        state.targetYaw = state.startYaw - (e.clientX - state.downX) * 0.0042;
+        state.targetPitch = state.startPitch - (e.clientY - state.downY) * 0.0024;
+        state.targetPitch = THREE.MathUtils.clamp(state.targetPitch, -0.95, 0.95);
+        setHint("Release to settle");
+      } else {
+        // Small cursor steering: the panorama follows the cursor without fighting the user.
+        state.pointerX = nx;
+        state.pointerY = ny;
+        state.targetYaw = nx * -0.24;
+        state.targetPitch = ny * -0.10;
+        setHint("Move to explore");
       }
-      frameRef.current = requestAnimationFrame(tick);
     };
 
-    frameRef.current = requestAnimationFrame(tick);
+    const onPointerUp = () => {
+      state.dragging = false;
+      state.lastInput = performance.now();
+      setDragging(false);
+      setHint("Move to explore");
+    };
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      camera.fov = THREE.MathUtils.clamp(camera.fov + e.deltaY * 0.025, 62, 105);
+      camera.updateProjectionMatrix();
+      state.lastInput = performance.now();
+    };
+
+    const reset = () => {
+      state.targetYaw = 0;
+      state.targetPitch = 0;
+      camera.fov = 92;
+      camera.updateProjectionMatrix();
+      state.lastInput = performance.now();
+    };
+
+    mount.addEventListener("pointerdown", onPointerDown);
+    mount.addEventListener("pointermove", onPointerMove);
+    mount.addEventListener("pointerup", onPointerUp);
+    mount.addEventListener("pointercancel", onPointerUp);
+    mount.addEventListener("wheel", onWheel, { passive: false });
+    sceneRef.current = { reset };
+
+    let raf = 0;
+    const animate = (time) => {
+      const idle = time - state.lastInput > 2600 && !state.dragging;
+      if (idle) {
+        state.targetYaw += Math.sin(time * 0.00012) * 0.00018;
+      }
+      state.yaw += (state.targetYaw - state.yaw) * 0.055;
+      state.pitch += (state.targetPitch - state.pitch) * 0.055;
+      sphere.rotation.y = Math.PI + state.yaw;
+      sphere.rotation.x = state.pitch;
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+
     return () => {
-      cancelAnimationFrame(frameRef.current);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      mount.removeEventListener("pointerdown", onPointerDown);
+      mount.removeEventListener("pointermove", onPointerMove);
+      mount.removeEventListener("pointerup", onPointerUp);
+      mount.removeEventListener("pointercancel", onPointerUp);
+      mount.removeEventListener("wheel", onWheel);
+      material.map?.dispose();
+      material.dispose();
+      geometry.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+      scene.clear();
     };
   }, []);
 
-  const pointerDown = (event) => {
-    const m = motionRef.current;
-    pointerRef.current = { x: event.clientX, y: event.clientY, startX: m.targetX, startY: m.targetY };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    setDragging(true);
-  };
-
-  const pointerMove = (event) => {
-    const el = event.currentTarget;
-    const rect = el.getBoundingClientRect();
-    const nx = (event.clientX - rect.left) / rect.width - 0.5;
-    const ny = (event.clientY - rect.top) / rect.height - 0.5;
-    const m = motionRef.current;
-    m.cursorX = nx * 100;
-    m.cursorY = ny * 100;
-
-    if (!pointerRef.current) {
-      m.targetX = nx * -55;
-      m.targetY = ny * -20;
-      return;
-    }
-
-    const dx = event.clientX - pointerRef.current.x;
-    const dy = event.clientY - pointerRef.current.y;
-    m.targetX = Math.max(-250, Math.min(250, pointerRef.current.startX + dx * 0.8));
-    m.targetY = Math.max(-45, Math.min(45, pointerRef.current.startY + dy * 0.28));
-  };
-
-  const pointerUp = () => {
-    pointerRef.current = null;
-    setDragging(false);
-  };
-
-  const resetView = () => {
-    const m = motionRef.current;
-    m.targetX = 0;
-    m.targetY = 0;
-    m.cursorX = 0;
-    m.cursorY = 0;
-  };
-
-  const current = stages[stage];
-
   return (
-    <section ref={sectionRef} className="panoramaStory panoramaStoryCompact">
-      <div className="panoramaStorySticky">
-        <div
-          ref={stageRef}
-          className={`panoramaHeroCanvas cinematicPanorama ${dragging ? "isDragging" : ""}`}
-          onPointerDown={pointerDown}
-          onPointerMove={pointerMove}
-          onPointerUp={pointerUp}
-          onPointerCancel={pointerUp}
-          onPointerLeave={() => {
-            pointerRef.current = null;
-            setDragging(false);
-          }}
-          aria-label="Interactive aerial panorama"
-        >
-          <div className="panoramaBackdrop" aria-hidden="true" />
-          <div className="panoramaImageWrap" aria-hidden="true">
-            <img src={HERO_IMAGE} alt="Aerial drone panorama" draggable="false" />
-          </div>
-          <div className="panoramaVignette" aria-hidden="true" />
-          <div className="panoramaCursorGlow" aria-hidden="true" />
-        </div>
+    <section className="panoramaHero immersiveHeroFixed">
+      <div ref={mountRef} className={`panoramaHeroCanvas immersive360Canvas ${dragging ? "isDragging" : ""}`} aria-label="Interactive 360 degree aerial panorama" />
+      <div className="panoramaHeroShade" />
+      <div className="panoramaHeroGlow" />
 
-        <div className="panoramaHeroShade" />
-        <div className="panoramaHeroGlow" />
-
-        <div className="panoramaHeroChrome">
-          <span><i /> LIVE VISUAL PREVIEW</span>
-          <span>DRONE PANORAMA</span>
-        </div>
-
-        <div className="panoramaStoryProgress">
-          {stages.map((item, index) => (
-            <span key={item.kicker} className={index === stage ? "active" : ""} />
-          ))}
-        </div>
-
-        <div className="panoramaHeroContent" key={stage}>
-          <div className="eyebrow heroEyebrow">{current.eyebrow}</div>
-          <div className="storyKicker">{current.kicker}</div>
-          <h1>{current.title}</h1>
-          <p>{current.body}</p>
-          {stage === 0 ? (
-            <div className="heroActions">
-              <button className="heroPrimary" onClick={onWorkspace}>Open workspace <b>↗</b></button>
-              <button className="heroSecondary" onClick={onExplore}>Explore the platform <b>↓</b></button>
-            </div>
-          ) : (
-            <div className="storyHint"><span>↕</span> Keep scrolling to explore</div>
-          )}
-        </div>
-
-        <div className="panoramaStoryFooter">
-          <div className="panoramaInstruction">
-            <span className="gestureIcon">↔</span>
-            <span>{dragging ? "Release to settle" : "Move to explore · drag to pan"}</span>
-          </div>
-          <div className="panoramaMeta">
-            <span>SCROLL / EXPLORE</span>
-            <span>2048 × 1024</span>
-            <button onClick={resetView}>Reset view</button>
-          </div>
-        </div>
-
-        <div className="panoramaScrollCue"><span>SCROLL</span><i /></div>
-        {!ready && <div className="panoramaHeroLoading">Loading visual environment…</div>}
+      <div className="panoramaHeroChrome">
+        <span><i /> LIVE VISUAL PREVIEW</span>
+        <span>360° PANORAMA</span>
       </div>
+
+      <div className="panoramaHeroContent">
+        <div className="eyebrow heroEyebrow">DRONYDRIVE / VISUAL DATA CLOUD</div>
+        <h1>See the site.<br /><em>Understand the data.</em></h1>
+        <p>A visual workspace for drone surveys, orthomosaics, panoramas and the files behind every flight.</p>
+        <div className="heroActions">
+          <button className="heroPrimary" onClick={onWorkspace}>Open workspace <b>↗</b></button>
+          <button className="heroSecondary" onClick={onExplore}>Explore the platform <b>↓</b></button>
+        </div>
+      </div>
+
+      <div className="panoramaHeroFooter">
+        <div className="panoramaInstruction">
+          <span className="gestureIcon">↔</span>
+          <span>{dragging ? "Release to settle" : hint + " · drag to look around"}</span>
+        </div>
+        <div className="panoramaMeta">
+          <span>TRUE 360°</span>
+          <span>2048 × 1024</span>
+          <button onClick={() => sceneRef.current?.reset()}>Reset view</button>
+        </div>
+      </div>
+
+      {!ready && <div className="panoramaHeroLoading">Loading visual environment…</div>}
     </section>
   );
 }

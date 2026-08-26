@@ -24,7 +24,8 @@ export default function PanoramaViewer({file, src, onClose}) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
-    const geometry = new THREE.SphereGeometry(50, 128, 80);
+    const geometry = new THREE.SphereGeometry(50, 96, 64);
+    geometry.scale(-1, 1, 1);
 
     const texture = new THREE.TextureLoader();
     texture.setCrossOrigin("anonymous");
@@ -34,9 +35,8 @@ export default function PanoramaViewer({file, src, onClose}) {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.generateMipmaps = true;
-        const material = new THREE.MeshBasicMaterial({map: tex, side: THREE.BackSide});
+        const material = new THREE.MeshBasicMaterial({map: tex});
         const sphere = new THREE.Mesh(geometry, material);
-        sphere.rotation.y = Math.PI;
         scene.add(sphere);
         sceneRef.current = {scene, camera, renderer, geometry, sphere, texture: tex};
         setLoading(false);

@@ -1,0 +1,52 @@
+
+.free360 {
+  position: relative;
+  min-height: 72vh;
+  padding: 110px clamp(24px, 7vw, 110px);
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(360px, .85fr);
+  gap: clamp(40px, 8vw, 120px);
+  align-items: center;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(70,210,105,.10), transparent 35%),
+    #07100c;
+  color: #f5f8f5;
+  overflow: hidden;
+}
+.free360::before {
+  content:"";
+  position:absolute; inset:0; pointer-events:none; opacity:.08;
+  background-image: linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px);
+  background-size:64px 64px;
+}
+.free360-copy,.free360-drop { position:relative; z-index:1; }
+.section-kicker { color:#67dd83; font-size:11px; letter-spacing:.18em; font-weight:800; }
+.free360-copy h2 { font-size:clamp(42px, 5vw, 76px); line-height:.98; letter-spacing:-.055em; margin:18px 0 22px; }
+.free360-copy h2 em { color:#5cda79; font-style:normal; }
+.free360-copy p { max-width:590px; color:#b9c5bd; line-height:1.75; font-size:16px; }
+.free360-points { display:flex; flex-wrap:wrap; gap:10px; margin-top:25px; }
+.free360-points span { border:1px solid rgba(255,255,255,.13); background:rgba(255,255,255,.04); padding:9px 12px; border-radius:999px; color:#dce5df; font-size:11px; }
+.free360-drop { min-height:350px; border:1px dashed rgba(100,222,126,.45); border-radius:24px; background:rgba(255,255,255,.045); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:35px; box-shadow:inset 0 0 80px rgba(75,218,100,.04); }
+.free360-icon { width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid #5cda79;color:#70e88a;font-size:32px;margin-bottom:20px; }
+.free360-drop h3 { margin:0; font-size:18px; max-width:420px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.free360-drop p { color:#9eaaa3; font-size:12px; margin:9px 0 22px; }
+.free360-button,.free360-view { display:inline-flex; align-items:center; justify-content:center; min-width:145px; padding:12px 18px; border-radius:9px; cursor:pointer; font-weight:800; font-size:13px; }
+.free360-button { background:#5cda79;color:#041008; }
+.free360-view { margin-top:10px; background:transparent; border:1px solid #5cda79; color:#74e890; }
+.free360-error { color:#ff9e9e; margin-top:14px; }
+.free360-modal { position:fixed; inset:0; z-index:9999; background:#020604; }
+.free360-toolbar { height:66px; position:absolute; top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(2,7,5,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.12); }
+.free360-toolbar strong { display:block;font-size:11px;letter-spacing:.12em;color:#6ce485; }
+.free360-toolbar span { display:block;color:#c1cbc4;font-size:12px;margin-top:4px;max-width:50vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.free360-toolbar-actions { display:flex;gap:8px; }
+.free360-toolbar button { background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:white;border-radius:8px;padding:9px 13px;cursor:pointer; }
+.free360-canvas { position:absolute;inset:66px 0 0;touch-action:none;cursor:grab; }
+.free360-canvas:active { cursor:grabbing; }
+.free360-canvas canvas { width:100%;height:100%;display:block; }
+.free360-help { position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(255,255,255,.72);font-size:11px;background:rgba(0,0,0,.35);padding:9px 14px;border-radius:999px;white-space:nowrap; }
+@media(max-width:800px){
+  .free360{grid-template-columns:1fr;padding:80px 22px;min-height:auto}
+  .free360-drop{min-height:300px}
+  .free360-toolbar{padding:0 12px}
+  .free360-help{bottom:12px;font-size:9px;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+}
