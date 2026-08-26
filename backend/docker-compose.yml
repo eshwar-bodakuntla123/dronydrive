@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    container_name: dronydrive-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - dronydrive_data:/app/data
+
+volumes:
+  dronydrive_data:
