@@ -1,240 +1,264 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import "./styles.css";
+import "./pro-landing.css";
 import Workspace from "./Workspace";
 import HeroPanorama from "./HeroPanorama";
-
 import Free360Viewer from "./Free360Viewer";
-const media = [
-  "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1400&q=88",
-  "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1400&q=88",
-  "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1400&q=88",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=88",
-  "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1400&q=88",
-  "https://images.unsplash.com/photo-1526481280695-3c687fd643ed?auto=format&fit=crop&w=1400&q=88",
-  "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1400&q=88",
-  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1400&q=88"
-];
 
-function Logo({light=false}) {
+const PANORAMA = "/assets/dronydrive-hero-360.jpg";
+
+function Logo() {
   return (
-    <a className={`logo ${light ? "logoLight" : ""}`} href="#top" aria-label="Dronydrive home">
-      <span className="logoIcon"><i/><i/><i/></span>
-      <span>DRONYDRIVE</span>
+    <a className="proLogo" href="#top" aria-label="Dronydrive home">
+      <span className="proLogoMark">D</span>
+      <span>DRONY<span>DRIVE</span></span>
     </a>
   );
 }
 
-function SmartImage({src, alt, className=""}) {
-  return <img className={className} src={src} alt={alt} loading="lazy"
-    onError={e => { e.currentTarget.style.opacity = 0; }} />;
+function Reveal({ children, className="" }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) el.classList.add("is-visible"); },
+      { threshold: 0.14 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <div ref={ref} className={`proReveal ${className}`}>{children}</div>;
 }
 
-function useScrollProgress(ref) {
+function ScrollShowcase() {
+  const ref = useRef(null);
   const [p, setP] = useState(0);
   useEffect(() => {
     const update = () => {
       const el = ref.current;
       if (!el) return;
-      const total = Math.max(1, el.offsetHeight - window.innerHeight);
+      const total = Math.max(1, el.offsetHeight - innerHeight);
       setP(Math.min(1, Math.max(0, -el.getBoundingClientRect().top / total)));
     };
-    window.addEventListener("scroll", update, {passive:true});
+    addEventListener("scroll", update, {passive:true});
     update();
-    return () => window.removeEventListener("scroll", update);
-  }, [ref]);
-  return p;
-}
+    return () => removeEventListener("scroll", update);
+  }, []);
 
-function DragGallery() {
-  const ref = useRef(null);
-  const [drag, setDrag] = useState({active:false,x:0,y:0,rx:0,ry:0});
-  const pointer = useRef(null);
-
-  const down = e => {
-    pointer.current = {x:e.clientX,y:e.clientY,rx:drag.rx,ry:drag.ry};
-    setDrag(d => ({...d,active:true}));
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-  };
-  const move = e => {
-    if (!pointer.current) return;
-    const dx = e.clientX - pointer.current.x;
-    const dy = e.clientY - pointer.current.y;
-    setDrag(d => ({...d,rx:Math.max(-22,Math.min(22,pointer.current.ry + dy*.05)),ry:Math.max(-34,Math.min(34,pointer.current.rx + dx*.07))}));
-  };
-  const up = () => { pointer.current=null; setDrag(d=>({...d,active:false})); };
+  const cards = [
+    ["01","ORTHOMOSAIC","Survey context"],
+    ["02","360°","Immersive view"],
+    ["03","PHOTO","High resolution"],
+    ["04","PROGRESS","Site history"],
+    ["05","INSPECTION","Visual review"],
+    ["06","REPORT","Client delivery"]
+  ];
 
   return (
-    <div ref={ref} className={`heroGallery ${drag.active ? "isDragging" : ""}`}
-      onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onPointerLeave={up}>
-      <div className="galleryGlow"/>
-      <div className="galleryStage" style={{"--rx":`${drag.rx}deg`,"--ry":`${drag.ry}deg`}}>
-        {media.map((src,i) => {
-          const angle = (i/media.length)*Math.PI*2;
-          const radius = 245 + (i%2)*22;
-          const x = Math.cos(angle)*radius;
-          const y = Math.sin(angle)*radius*.48;
-          const z = Math.cos(angle)*80;
-          return (
-            <div key={src} className={`galleryCard card${i}`} style={{
-              "--x":`${x}px`,"--y":`${y}px`,"--z":`${z}px`,
-              "--rot":`${Math.sin(angle)*9}deg`,
-              zIndex: 30 + Math.round(z)
-            }}>
-              <SmartImage src={src} alt="Drone survey preview"/>
-              <span>{i%3===0 ? "ORTHO" : i%3===1 ? "360°" : "PHOTO"}</span>
-            </div>
-          );
-        })}
-        <div className="galleryCore">
-          <div className="coreRing"/>
-          <div className="coreLabel">DRONE<br/><b>DATA</b></div>
+    <section ref={ref} className="proScrollStory" id="explore">
+      <div className="proScrollSticky">
+        <div className="storyBackdrop" />
+        <div className="storyNoise" />
+        <div className="storyHeader">
+          <span>02 / VISUAL WORKSPACE</span>
+          <b>{String(Math.round(p*100)).padStart(2,"0")}</b>
         </div>
-      </div>
-      <div className="dragBadge">
-        <span className="dragCursor">↔</span>
-        <span>{drag.active ? "Release to settle" : "Drag to explore"}</span>
-      </div>
-    </div>
-  );
-}
 
-function ScrollShowcase() {
-  const ref = useRef(null);
-  const p = useScrollProgress(ref);
-  const cards = media.slice(0,7);
-  return (
-    <section ref={ref} className="scrollShowcase">
-      <div className="scrollSticky">
-        <div className="scrollBackdrop"/>
-        <div className="scrollCopy">
-          <div className="eyebrow">ONE WORKSPACE. EVERY DATASET.</div>
-          <h2>{p < .35 ? <>Your survey, <span>in context.</span></> :
-            p < .7 ? <>See the detail.<br/><span>Keep the story.</span></> :
-            <>From capture<br/><span>to delivery.</span></>}</h2>
-          <p>{p < .7 ? "Move through the project without leaving the visual context behind." : "Store, review and share the data your team depends on."}</p>
+        <div className="storyCopy">
+          <span className="proKicker">ONE PROJECT. EVERY VIEW.</span>
+          <h2>
+            {p < .34 ? <>Keep the site<br/><em>in context.</em></> :
+             p < .68 ? <>Move from<br/><em>detail to overview.</em></> :
+             <>From capture<br/><em>to delivery.</em></>}
+          </h2>
+          <p>
+            {p < .68
+              ? "Your drone data stays connected to the place it describes."
+              : "Review the work visually, then hand clients a cleaner experience."}
+          </p>
         </div>
-        <div className="scrollOrbit">
-          {cards.map((src,i) => {
-            const angle = (i/cards.length)*Math.PI*2 + p*5.2;
-            const r = 210 + p*150;
-            return <div key={src} className="orbitCard" style={{
-              "--ox":`${Math.cos(angle)*r}px`,"--oy":`${Math.sin(angle)*r*.62}px`,
-              "--os":`${.68 + p*.35}`,"--or":`${Math.sin(angle)*12}deg`
-            }}><SmartImage src={src} alt="Drone data"/></div>;
+
+        <div className="proOrbit">
+          {cards.map(([n,title,sub], i) => {
+            const angle = (i/cards.length)*Math.PI*2 + p*Math.PI*2.2;
+            const radius = 235 + p*85;
+            const x = Math.cos(angle)*radius;
+            const y = Math.sin(angle)*radius*.56;
+            const front = (Math.cos(angle)+1)/2;
+            return (
+              <article
+                key={n}
+                className="proOrbitCard"
+                style={{
+                  "--x": `${x}px`,
+                  "--y": `${y}px`,
+                  "--scale": `${.74 + front*.24}`,
+                  "--opacity": `${.32 + front*.68}`,
+                  "--rotate": `${Math.sin(angle)*7}deg`,
+                  zIndex: Math.round(front*20)
+                }}
+              >
+                <div className="proCardImage">
+                  <img src={PANORAMA} alt="" style={{objectPosition:`${(i*19)%100}% ${35+(i%3)*15}%`}} />
+                  <span>{n}</span>
+                </div>
+                <strong>{title}</strong>
+                <small>{sub}</small>
+              </article>
+            );
           })}
         </div>
-        <div className="scrollMetric"><b>{String(Math.round(p*100)).padStart(2,"0")}</b><span>SCROLL / EXPLORE</span></div>
+
+        <div className="storyCenter">
+          <div className="storyCenterImage">
+            <img src={PANORAMA} alt="Dronydrive site panorama" />
+            <div className="storyCenterShade" />
+            <span>LIVE SITE VIEW</span>
+          </div>
+          <div className="storyRing" />
+        </div>
+
+        <div className="storyHint">SCROLL TO EXPLORE <i>↕</i></div>
       </div>
     </section>
   );
 }
 
 function Landing({onWorkspace}) {
-  const [menu, setMenu] = useState(false);
-  const scrollTo = id => {
+  const [menu,setMenu] = useState(false);
+  const go = id => {
     setMenu(false);
     document.getElementById(id)?.scrollIntoView({behavior:"smooth"});
   };
 
   return (
-    <div id="top" className="site premiumSite">
-      <header className="header heroHeader">
-        <div className="nav">
-          <Logo light/>
-          <div className={`links ${menu ? "open" : ""}`}>
-            <button onClick={()=>scrollTo("platform")}>Platform</button>
-            <button onClick={()=>scrollTo("workflow")}>Workflow</button>
-            <button onClick={()=>scrollTo("capabilities")}>Capabilities</button>
+    <div id="top" className="proSite">
+      <header className="proHeader">
+        <div className="proNav">
+          <Logo />
+          <nav className={menu ? "open" : ""}>
+            <button onClick={()=>go("platform")}>Platform</button>
+            <button onClick={()=>go("explore")}>Experience</button>
+            <button onClick={()=>go("free-360")}>Free 360°</button>
+            <button onClick={()=>go("workflow")}>Workflow</button>
+          </nav>
+          <div className="proNavActions">
+            <button className="proTextBtn" onClick={()=>go("contact")}>Contact</button>
+            <button className="proPrimary small" onClick={onWorkspace}>Open workspace <span>↗</span></button>
           </div>
-          <div className="navCtas">
-            <button className="ghost ghostLight" onClick={()=>scrollTo("free-360")}>Free 360° Viewer</button>
-            <button className="ghost ghostLight" onClick={()=>scrollTo("contact")}>Talk to us</button>
-            <button className="navWorkspace" onClick={onWorkspace}>Open workspace ↗</button>
-          </div>
-          <button className="hamb hambLight" onClick={()=>setMenu(v=>!v)} aria-label="Menu"><span/><span/></button>
+          <button className="proMenu" onClick={()=>setMenu(v=>!v)} aria-label="Menu">☰</button>
         </div>
       </header>
 
       <main>
-        <HeroPanorama
-          onWorkspace={onWorkspace}
-          onExplore={()=>scrollTo("platform")}
-        />
+        <HeroPanorama onWorkspace={onWorkspace} onExplore={()=>go("platform")} />
 
-        <section className="signalBar darkSignal">
-          <span>DRONE DATA MANAGEMENT</span><i>✦</i><span>ORTHOMOSAIC REVIEW</span><i>✦</i><span>360° VIEWING</span><i>✦</i><span>SECURE DELIVERY</span>
+        <section className="proSignal">
+          <span><i>●</i> DRONE DATA PLATFORM</span>
+          <span>ORTHOMOSAICS</span>
+          <span>360° PANORAMAS</span>
+          <span>PROJECT MEMORY</span>
+          <span>CLIENT DELIVERY</span>
         </section>
 
-        <div className="free360-jump"><button onClick={()=>scrollTo("free-360")}>Try the Free 360° Viewer <span>↓</span></button></div>
+        <section id="platform" className="proIntro">
+          <Reveal className="proIntroGrid">
+            <div>
+              <span className="proKicker">01 / THE PLATFORM</span>
+              <h2>All the visual context.<br/><em>One workspace.</em></h2>
+            </div>
+            <div className="proIntroSide">
+              <p>Stop treating drone output like a pile of files. Dronydrive keeps the capture, the project and the visual review connected.</p>
+              <button onClick={onWorkspace} className="proLineBtn">Open a project <span>↗</span></button>
+            </div>
+          </Reveal>
+        </section>
 
-        <Free360Viewer />
+        <ScrollShowcase />
 
-        <section id="platform" className="platformIntro premiumIntro">
-          <div>
-            <div className="eyebrow">BUILT FOR THE WAY YOU WORK</div>
-            <h2>Not a folder.<br/><span>A visual workspace.</span></h2>
+        <Reveal>
+          <Free360Viewer />
+        </Reveal>
+
+        <section id="workflow" className="proWorkflow">
+          <Reveal>
+            <div className="proSectionTop">
+              <span className="proKicker">03 / SIMPLE WORKFLOW</span>
+              <span className="proSectionMeta">CAPTURE → REVIEW → DELIVER</span>
+            </div>
+            <div className="proWorkflowGrid">
+              {[
+                ["01","Bring it together","Upload the flight folder once. Keep originals, previews and project context together."],
+                ["02","Explore visually","Open GeoTIFFs, 360° panoramas and media without leaving the project."],
+                ["03","Share with confidence","Give clients a clean visual destination instead of a confusing download folder."]
+              ].map(([n,t,d])=>(
+                <article key={n}>
+                  <span className="stepNo">{n}</span>
+                  <div className="stepLine" />
+                  <h3>{t}</h3>
+                  <p>{d}</p>
+                  <b>↗</b>
+                </article>
+              ))}
+            </div>
+          </Reveal>
+        </section>
+
+        <section className="proCapabilities">
+          <Reveal>
+            <div className="proSectionTop">
+              <span className="proKicker">04 / CAPABILITIES</span>
+              <span className="proSectionMeta">BUILT AROUND THE CAPTURE</span>
+            </div>
+            <div className="proCapabilitiesGrid">
+              {[
+                ["01","GeoTIFF / Orthomosaic","Pan, zoom and inspect high-resolution survey imagery."],
+                ["02","360° Panorama","Explore a site naturally with drag-to-look viewing."],
+                ["03","Project memory","Dates, files and visual context stay together."],
+                ["04","Client delivery","A focused presentation layer for the people who need the result."]
+              ].map(([n,t,d])=>(
+                <article key={n}>
+                  <span>{n}</span>
+                  <h3>{t}</h3>
+                  <p>{d}</p>
+                  <div className="capArrow">↗</div>
+                </article>
+              ))}
+            </div>
+          </Reveal>
+        </section>
+
+        <section id="contact" className="proFinal">
+          <div className="proFinalImage"><img src={PANORAMA} alt="" /></div>
+          <div className="proFinalShade" />
+          <div className="proFinalContent">
+            <span className="proKicker">DRONYDRIVE</span>
+            <h2>Your drone data<br/><em>deserves context.</em></h2>
+            <p>A visual home for the work that comes back from every flight.</p>
+            <button className="proPrimary" onClick={onWorkspace}>Open workspace <span>↗</span></button>
           </div>
-          <p>Keep the project, its files and its visual context together. Open a GeoTIFF as a survey, a panorama as a 360° scene, or a photo as a high-resolution asset.</p>
         </section>
+      </main>
 
-        <ScrollShowcase/>
-
-        <section id="workflow" className="workflowSection">
-          <div className="sectionLabel">01 / CAPTURE → REVIEW → DELIVER</div>
-          <div className="workflowGrid">
-            <article><span>01</span><h3>Upload once.</h3><p>Bring your flight folders into a project and keep the original files intact.</p></article>
-            <article><span>02</span><h3>Review visually.</h3><p>Inspect orthomosaics, 360° panoramas and media without leaving the workspace.</p></article>
-            <article><span>03</span><h3>Deliver confidently.</h3><p>Give clients a clean project view instead of a messy download folder.</p></article>
-          </div>
-        </section>
-
-        <section id="capabilities" className="capabilities">
-          <div className="eyebrow">CAPABILITIES</div>
-          <h2>Simple outside.<br/><span>Serious underneath.</span></h2>
-          <div className="capGrid">
-            {[
-              ["01","GeoTIFF / Orthomosaic","High-resolution survey imagery with pan, zoom and metadata."],
-              ["02","360° Panorama","Immersive drag-to-explore viewing directly in the browser."],
-              ["03","Project memory","Files, dates, sizes and project context stay together."],
-              ["04","Client delivery","A cleaner path from internal data to client-ready review."]
-            ].map(x=><article key={x[0]}><small>{x[0]}</small><h3>{x[1]}</h3><p>{x[2]}</p><b>↗</b></article>)}
-          </div>
-        </section>
-
-        <section id="pricing" className="pricingClean">
-          <div className="eyebrow">PLANS</div>
-          <h2>Start small.<br/><span>Scale with your flights.</span></h2>
-          <div className="planGrid">
-            {[["Starter","500 GB","₹2,499","For independent pilots"],["Pro","2 TB","₹7,499","For growing drone teams"],["Black Box","20 TB","₹3,499","For long-term archives"]].map((p,i)=>(
-              <article className={i===1?"plan featured":"plan"} key={p[0]}>
-                {i===1&&<label>MOST POPULAR</label>}<small>{p[0]}</small><strong>{p[1]}</strong><p>{p[3]}</p><div>{p[2]}<em>/mo</em></div><button onClick={onWorkspace}>Get started ↗</button>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="contact" className="contactClean">
-          <div className="contactAura"/>
-          <div className="eyebrow">DRONYDRIVE</div>
-          <h2>Your drone data<br/><span>deserves context.</span></h2>
-          <p>A cleaner, more visual way to manage the work that comes back from every flight.</p>
-          <button onClick={onWorkspace}>Open workspace ↗</button>
-        </section>
-</main>
-
-      <footer><Logo/><span>Drone data infrastructure, beautifully designed.</span><small>© 2026 Dronydrive</small></footer>
+      <footer className="proFooter">
+        <Logo />
+        <span>Drone data infrastructure, beautifully designed.</span>
+        <small>© 2026 Dronydrive</small>
+      </footer>
     </div>
   );
 }
 
-function App() {
-  const [workspace,setWorkspace] = useState(()=>window.location.hash === "#workspace");
+export default function App() {
+  const [workspace,setWorkspace] = useState(()=>location.hash === "#workspace");
   useEffect(()=>{
-    const sync=()=>setWorkspace(window.location.hash === "#workspace");
-    window.addEventListener("hashchange",sync); return()=>window.removeEventListener("hashchange",sync);
+    const sync=()=>setWorkspace(location.hash === "#workspace");
+    addEventListener("hashchange",sync);
+    return()=>removeEventListener("hashchange",sync);
   },[]);
-  const open=()=>{window.location.hash="workspace";setWorkspace(true)};
-  const close=()=>{window.location.hash="";setWorkspace(false)};
+  const open=()=>{location.hash="workspace";setWorkspace(true)};
+  const close=()=>{location.hash="";setWorkspace(false)};
   return workspace ? <Workspace onBack={close}/> : <Landing onWorkspace={open}/>;
 }
-export default App;

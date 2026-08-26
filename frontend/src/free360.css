@@ -9,7 +9,7 @@
   align-items: center;
   background:
     radial-gradient(circle at 70% 30%, rgba(70,210,105,.10), transparent 35%),
-    #07100c;
+    #F5F7FA;
   color: #f5f8f5;
   overflow: hidden;
 }
@@ -20,23 +20,23 @@
   background-size:64px 64px;
 }
 .free360-copy,.free360-drop { position:relative; z-index:1; }
-.section-kicker { color:#67dd83; font-size:11px; letter-spacing:.18em; font-weight:800; }
+.section-kicker { color:#5B8DEF; font-size:11px; letter-spacing:.18em; font-weight:800; }
 .free360-copy h2 { font-size:clamp(42px, 5vw, 76px); line-height:.98; letter-spacing:-.055em; margin:18px 0 22px; }
-.free360-copy h2 em { color:#5cda79; font-style:normal; }
+.free360-copy h2 em { color:#5B8DEF; font-style:normal; }
 .free360-copy p { max-width:590px; color:#b9c5bd; line-height:1.75; font-size:16px; }
 .free360-points { display:flex; flex-wrap:wrap; gap:10px; margin-top:25px; }
 .free360-points span { border:1px solid rgba(255,255,255,.13); background:rgba(255,255,255,.04); padding:9px 12px; border-radius:999px; color:#dce5df; font-size:11px; }
-.free360-drop { min-height:350px; border:1px dashed rgba(100,222,126,.45); border-radius:24px; background:rgba(255,255,255,.045); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:35px; box-shadow:inset 0 0 80px rgba(75,218,100,.04); }
-.free360-icon { width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid #5cda79;color:#70e88a;font-size:32px;margin-bottom:20px; }
+.free360-drop { min-height:350px; border:1px dashed rgba(91,141,239,.45); border-radius:24px; background:rgba(255,255,255,.045); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:35px; box-shadow:inset 0 0 80px rgba(91,141,239,.04); }
+.free360-icon { width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid #5B8DEF;color:#79A7FF;font-size:32px;margin-bottom:20px; }
 .free360-drop h3 { margin:0; font-size:18px; max-width:420px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .free360-drop p { color:#9eaaa3; font-size:12px; margin:9px 0 22px; }
 .free360-button,.free360-view { display:inline-flex; align-items:center; justify-content:center; min-width:145px; padding:12px 18px; border-radius:9px; cursor:pointer; font-weight:800; font-size:13px; }
-.free360-button { background:#5cda79;color:#041008; }
-.free360-view { margin-top:10px; background:transparent; border:1px solid #5cda79; color:#74e890; }
+.free360-button { background:#5B8DEF;color:#041008; }
+.free360-view { margin-top:10px; background:transparent; border:1px solid #5B8DEF; color:#79A7FF; }
 .free360-error { color:#ff9e9e; margin-top:14px; }
-.free360-modal { position:fixed; inset:0; z-index:9999; background:#020604; }
+.free360-modal { position:fixed; inset:0; z-index:9999; background:#F1F4F8; }
 .free360-toolbar { height:66px; position:absolute; top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(2,7,5,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.12); }
-.free360-toolbar strong { display:block;font-size:11px;letter-spacing:.12em;color:#6ce485; }
+.free360-toolbar strong { display:block;font-size:11px;letter-spacing:.12em;color:#5B8DEF; }
 .free360-toolbar span { display:block;color:#c1cbc4;font-size:12px;margin-top:4px;max-width:50vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
 .free360-toolbar-actions { display:flex;gap:8px; }
 .free360-toolbar button { background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:white;border-radius:8px;padding:9px 13px;cursor:pointer; }
@@ -49,4 +49,91 @@
   .free360-drop{min-height:300px}
   .free360-toolbar{padding:0 12px}
   .free360-help{bottom:12px;font-size:9px;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+}
+
+/* Final product-level Free Viewer refinements */
+.free360 { isolation:isolate; }
+.free360-copy::after {
+  content:"LOCAL PREVIEW  /  ZERO UPLOAD";
+  display:block;
+  margin-top:34px;
+  color:#607067;
+  font:500 9px "DM Mono",monospace;
+  letter-spacing:.16em;
+}
+.free360-drop::after {
+  content:"Your file stays on this device";
+  position:absolute;left:50%;bottom:20px;transform:translateX(-50%);
+  color:#627168;font:500 8px "DM Mono",monospace;letter-spacing:.10em;white-space:nowrap;
+}
+.free360-drop { position:relative; }
+
+/* Final blue/white Free 360° palette */
+.free360 {
+  --viewer-blue:#5B8DEF;
+}
+.free360 .section-kicker { color:#5B8DEF !important; }
+.free360 .free360-copy h2 em { color:#5B8DEF !important; }
+.free360 .free360-icon { border-color:#5B8DEF !important; color:#79A7FF !important; box-shadow:0 0 28px rgba(74,121,216,.14) !important; }
+.free360 .free360-button { background:#5B8DEF !important; color:#07101c !important; box-shadow:0 8px 24px rgba(74,121,216,.18) !important; }
+.free360 .free360-view { border-color:#5B8DEF !important; color:#79A7FF !important; background:rgba(74,121,216,.06) !important; }
+.free360 .free360-view:hover { background:rgba(74,121,216,.13) !important; }
+.free360-drop { border-color:rgba(91,141,239,.44) !important; }
+.free360-drop:hover { border-color:rgba(91,141,239,.78) !important; }
+
+/* Soft navy/slate Free 360° viewer */
+.free360 {
+  background:
+    radial-gradient(850px 500px at 78% 35%, rgba(91,141,239,.085), transparent 62%),
+    radial-gradient(650px 450px at 12% 80%, rgba(90,130,180,.07), transparent 65%),
+    linear-gradient(180deg,#F8FAFC 0%,#F5F7FA 100%) !important;
+}
+.free360-drop {
+  background:rgba(20,42,61,.42) !important;
+  border-color:rgba(91,141,239,.38) !important;
+  box-shadow:inset 0 0 80px rgba(91,141,239,.025),0 24px 70px rgba(5,16,28,.22) !important;
+}
+.free360-drop:hover { border-color:rgba(91,141,239,.68) !important; }
+.free360-modal { background:#F1F4F8 !important; }
+.free360-toolbar { background:rgba(8,19,31,.88) !important; }
+
+/* Soft-light Free 360° section */
+.free360 {
+  color:#172334 !important;
+  background:
+    radial-gradient(850px 500px at 78% 35%,rgba(77,127,234,.07),transparent 62%),
+    radial-gradient(650px 450px at 12% 80%,rgba(120,150,190,.06),transparent 65%),
+    linear-gradient(180deg,#F8FAFC 0%,#F3F6F9 100%) !important;
+}
+.free360::before { opacity:.025 !important; }
+.free360-copy h2 { color:#172334 !important; }
+.free360-copy p { color:#5F6F82 !important; }
+.free360-points span {
+  color:#526277 !important;
+  background:rgba(255,255,255,.75) !important;
+  border-color:rgba(39,62,88,.10) !important;
+}
+.free360-drop {
+  background:rgba(255,255,255,.78) !important;
+  border-color:rgba(77,127,234,.30) !important;
+  box-shadow:0 20px 60px rgba(33,55,78,.08),inset 0 0 60px rgba(77,127,234,.025) !important;
+}
+.free360-drop h3 { color:#172334 !important; }
+.free360-drop p { color:#718095 !important; }
+.free360-icon { background:#F7F9FC; }
+.free360-modal { background:#F7F9FC !important; }
+.free360-toolbar {
+  background:rgba(255,255,255,.92) !important;
+  border-bottom-color:rgba(39,62,88,.12) !important;
+}
+.free360-toolbar span { color:#64758A !important; }
+.free360-toolbar button {
+  background:#F2F5F8 !important;
+  border-color:rgba(39,62,88,.12) !important;
+  color:#25364B !important;
+}
+.free360-help {
+  background:rgba(255,255,255,.82) !important;
+  color:#526277 !important;
+  border-color:rgba(39,62,88,.10) !important;
 }
